@@ -15,7 +15,7 @@ Joseph is a lightweight C++ HTTP web server designed to provide fast and efficie
 To get started with Joseph, clone the repository and build the application using CMake:
 
 ```bash
-git clone https://github.com/a382409/joseph.git
+git clone https://github.com/meowpurrpur/Joseph.git
 cd joseph
 mkdir build && cd build
 cmake ..

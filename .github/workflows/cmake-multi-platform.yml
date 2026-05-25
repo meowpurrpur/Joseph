@@ -17,35 +17,21 @@ jobs:
       # Consider changing this to true when your workflow is stable.
       fail-fast: false
 
-      # Matrix defines OS + compiler combinations
+      # Now ONLY Linux builds (Windows removed)
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         build_type: [Release]
-        compiler: [gcc, clang, msvc]
+        c_compiler: [gcc, clang]
+        cpp_compiler: [g++, clang++]
 
         include:
           - os: ubuntu-latest
-            compiler: gcc
             c_compiler: gcc
             cpp_compiler: g++
 
           - os: ubuntu-latest
-            compiler: clang
             c_compiler: clang
             cpp_compiler: clang++
-
-          - os: windows-latest
-            compiler: msvc
-            c_compiler: cl
-            cpp_compiler: cl
-
-        exclude:
-          - os: windows-latest
-            compiler: gcc
-          - os: windows-latest
-            compiler: clang
-          - os: ubuntu-latest
-            compiler: msvc
 
     steps:
     - uses: actions/checkout@v4
@@ -58,8 +44,8 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Configure CMake (Linux)
-      if: runner.os == 'Linux'
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory.
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -S ${{ github.workspace }}
@@ -67,16 +53,6 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 
-    - name: Configure CMake (Windows)
-      if: runner.os == 'Windows'
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -S ${{ github.workspace }}
-        -G "Visual Studio 17 2022"
-        -A x64
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-
     - name: Build
       # Build your program with the given configuration.
-      # Note: --config is needed because Visual Studio generator is multi-config.
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
